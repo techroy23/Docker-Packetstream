@@ -111,18 +111,8 @@ while true; do
     export PS_LOG_LEVEL=debug
     export PS_IS_DOCKER=true
     exec $BIN_SDK --launcher=$BIN_SDK &
-    sleep 5
-    cat /root/.packetstream/init  
     PID=$!
-    sleep 43200 &
-    SLEEP_PID=$!
-    wait -n $PID $SLEEP_PID
-    if kill -0 $PID 2>/dev/null; then
-        log " >>> An2Kin >>> Time elapsed, killing process $PID"
-        kill -TERM $PID
-        wait $PID || true
-    else
-        log " >>> An2Kin >>> Process exited, restarting..."
-    fi
-    kill $SLEEP_PID 2>/dev/null || true
+    log " >>> An2Kin >>> APP PID is $PID"
+    wait $PID
+    log " >>> An2Kin >>> Process exited, restarting..."
 done
