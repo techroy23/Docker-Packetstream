@@ -10,7 +10,9 @@ FROM alpine:latest AS final
 
 WORKDIR /app
 
-RUN apk add --no-cache ca-certificates ca-certificates-bundle unzip curl bash dos2unix iptables redsocks \
+RUN apk update \
+    && apk upgrade --no-cache \
+    && apk add --no-cache ca-certificates ca-certificates-bundle unzip curl bash dos2unix tzdata iptables redsocks \
     && update-ca-certificates
 
 COPY --from=source_amd64 /usr/local/bin/linux_amd64/psclient /app/amd64/psclient
@@ -32,5 +34,3 @@ RUN chmod +x /app/entrypoint.sh \
              /app/arm/psclient
 
 ENTRYPOINT ["/app/entrypoint.sh"]
-
-CMD ["bash"]

@@ -10,6 +10,11 @@ log() {
   echo "$(date '+%Y-%m-%d %H:%M:%S') $*"
 }
 
+if [ -z "${TOKEN:-}" ]; then
+  log " >>> An2Kin >>> ERROR: TOKEN environment variable is not set."
+  exit 1
+fi
+
 arch=$(uname -m)
 case "$arch" in
   x86_64)
@@ -98,21 +103,21 @@ check_ip() {
   fi
 }
 
-if [ -z "${TOKEN:-}" ]; then
-  log " >>> An2Kin >>> ERROR: TOKEN environment variable is not set."
-  exit 1
-fi
+main() {
+  while true; do
+      setup_proxy
+      check_ip
+      log " >>> An2Kin >>> Starting binary..."
+      export CID=$TOKEN
+      export PS_LOG_LEVEL=debug
+      export PS_IS_DOCKER=true
+      "$BIN_SDK" --launcher=$BIN_SDK &
+      PID=$!
+      log " >>> An2Kin >>> APP PID is $PID"
+      wait $PID
+      log " >>> An2Kin >>> Process exited, restarting..."
+      sleep 5
+  done
+}
 
-while true; do
-    setup_proxy
-    check_ip
-    log " >>> An2Kin >>> Starting binary..."
-    export CID=$TOKEN
-    export PS_LOG_LEVEL=debug
-    export PS_IS_DOCKER=true
-    exec $BIN_SDK --launcher=$BIN_SDK &
-    PID=$!
-    log " >>> An2Kin >>> APP PID is $PID"
-    wait $PID
-    log " >>> An2Kin >>> Process exited, restarting..."
-done
+main
